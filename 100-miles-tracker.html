@@ -647,6 +647,55 @@
       font-size: 18px;
       flex-shrink: 0;
     }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-icon {
+      font-size: 40px;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal h3 {
+      margin: 0 0 0.75rem;
+      font-size: 18px;
+      color: var(--text-primary);
+    }
+
+    .modal p {
+      margin: 0 0 1.5rem;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -700,12 +749,7 @@
             </div>
             <div class="input-wrapper">
               <label for="activity-type">Activity</label>
-              <select id="activity-type">
-                <option value="Walk">Walk</option>
-                <option value="Run">Run</option>
-                <option value="Row">Row</option>
-                <option value="Bike">Bike</option>
-              </select>
+              <select id="activity-type"></select>
             </div>
           </div>
 
@@ -769,6 +813,13 @@
               <button onclick="saveSettings()">💾 Save Settings</button>
             </div>
 
+            <div class="section-title" style="margin-top: 0.5rem;">Activity Types</div>
+            <div id="settings-activities"></div>
+            <div class="button-group two-col" style="margin-bottom: 1rem;">
+              <button id="add-activity-btn" onclick="addActivityType()">➕ Add activity</button>
+              <button onclick="saveActivitySettings()">💾 Save Activities</button>
+            </div>
+
             <div class="section-title" style="margin-top: 0.5rem;">Data sync</div>
             <div class="info-text">
               Your data is automatically saved to this device. Export to any folder or drive for backup or import from a saved file.
@@ -780,9 +831,6 @@
             <div class="button-group" style="margin-top: 1rem;">
               <button class="danger" onclick="clearAllData()">🗑️ Clear all data</button>
             </div>
-            <div class="button-group" style="margin-top: 0.75rem;">
-              <button onclick="reconfigure()">🔄 Reconfigure People</button>
-            </div>
             <div class="info-text" style="margin-top: 1rem; font-size: 12px;">
               💡 Save exports to any drive or email for backup across devices.
             </div>
@@ -793,20 +841,39 @@
     </div>
   </div>
 
+  <div id="clear-modal" class="modal-overlay" onclick="if(event.target===this)dismissClearModal()">
+    <div class="modal">
+      <div class="modal-icon">⚠️</div>
+      <h3>Delete All Data?</h3>
+      <p>This cannot be undone. Export first for backup!</p>
+      <div class="modal-buttons">
+        <button onclick="dismissClearModal()">Cancel</button>
+        <button class="danger" onclick="confirmClearAll()">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const PERSON_COLORS = ['#4a9eff', '#4caf50', '#ff9800', '#9c27b0'];
-    const ACTIVITY_COLORS = {
-      'Walk': '#4a9eff',
-      'Run': '#ff9800',
-      'Row': '#9c27b0',
-      'Bike': '#4caf50'
-    };
+    const ACTIVITY_COLOR_PALETTE = ['#4a9eff', '#ff9800', '#9c27b0', '#4caf50', '#e91e63', '#00bcd4', '#795548', '#607d8b'];
+    const DEFAULT_ACTIVITIES = ['Walk', 'Run', 'Row', 'Bike'];
 
     let data = { entries: [], config: {} };
     let editingIndex = -1;
 
     function getPeople() {
       return (data.config && data.config.people) || [];
+    }
+
+    function getActivityTypes() {
+      return (data.config && data.config.activityTypes) || DEFAULT_ACTIVITIES;
+    }
+
+    function activityColor(activityName) {
+      const types = getActivityTypes();
+      const index = types.indexOf(activityName);
+      if (index >= 0) return ACTIVITY_COLOR_PALETTE[index % ACTIVITY_COLOR_PALETTE.length];
+      return '#888';
     }
 
     function personColor(index) {
@@ -833,6 +900,7 @@
 
     function migrateData() {
       if (!data.config) data.config = {};
+      if (!data.config.activityTypes) data.config.activityTypes = [...DEFAULT_ACTIVITIES];
 
       const needsMigration = data.entries.length > 0 && data.entries[0].miles === undefined;
       if (!needsMigration) return;
@@ -914,6 +982,9 @@
 
       const startDate = document.getElementById('setup-start-date').value;
       data.config.people = people;
+      if (!data.config.activityTypes || data.config.activityTypes.length === 0) {
+        data.config.activityTypes = [...DEFAULT_ACTIVITIES];
+      }
       if (startDate) data.config.summerStartDate = startDate;
 
       if (data.entries.length > 0) {
@@ -939,10 +1010,12 @@
 
       buildProgressGrid();
       buildMilesInputs();
+      buildActivityDropdown();
       buildDashboardCards();
       buildStatsBars();
       buildStatsTotals();
       renderSettingsPeople();
+      renderSettingsActivities();
 
       if (data.config.summerStartDate) {
         document.getElementById('summer-start-date').value = data.config.summerStartDate;
@@ -1107,24 +1180,103 @@
       alert('Settings saved!');
     }
 
+    function buildActivityDropdown() {
+      const select = document.getElementById('activity-type');
+      const current = select.value;
+      select.innerHTML = getActivityTypes().map(a =>
+        `<option value="${a}">${a}</option>`
+      ).join('');
+      if (current && getActivityTypes().includes(current)) select.value = current;
+    }
+
+    function renderSettingsActivities() {
+      const container = document.getElementById('settings-activities');
+      const types = getActivityTypes();
+      container.innerHTML = types.map((name, i) => {
+        const swatch = ACTIVITY_COLOR_PALETTE[i % ACTIVITY_COLOR_PALETTE.length];
+        return `
+        <div class="settings-person-row">
+          <div class="legend-swatch" style="background:${swatch}; flex-shrink:0;"></div>
+          <input type="text" id="settings-activity-${i}" value="${name}">
+          <button class="danger" onclick="removeActivityType(${i})" style="font-size: 14px;">✕</button>
+        </div>
+      `;
+      }).join('');
+      document.getElementById('add-activity-btn').style.display = types.length >= 8 ? 'none' : '';
+    }
+
+    function addActivityType() {
+      const types = getActivityTypes();
+      if (types.length >= 8) return;
+      types.push('');
+      renderSettingsActivities();
+      document.getElementById(`settings-activity-${types.length - 1}`).focus();
+    }
+
+    function removeActivityType(index) {
+      const types = getActivityTypes();
+      if (types.length <= 1) {
+        alert('You need at least one activity type.');
+        return;
+      }
+      const name = types[index];
+      if (name && !confirm(`Remove "${name}"? Existing entries with this activity will be kept but it won't appear in the dropdown.`)) return;
+      types.splice(index, 1);
+      saveData();
+      renderSettingsActivities();
+      buildActivityDropdown();
+      updateDisplay();
+    }
+
+    function saveActivitySettings() {
+      const types = getActivityTypes();
+      const newTypes = [];
+      for (let i = 0; i < types.length; i++) {
+        const input = document.getElementById(`settings-activity-${i}`);
+        if (!input) continue;
+        const name = input.value.trim();
+        if (!name) {
+          alert('Please enter a name for each activity type.');
+          return;
+        }
+        if (newTypes.includes(name)) {
+          alert(`Each activity type needs a unique name. "${name}" is used more than once.`);
+          return;
+        }
+        newTypes.push(name);
+      }
+
+      const oldTypes = [...types];
+      for (let i = 0; i < oldTypes.length; i++) {
+        const oldName = oldTypes[i];
+        const newName = newTypes[i];
+        if (!oldName || oldName === newName) continue;
+        data.entries.forEach(entry => {
+          if (entry.activity === oldName) entry.activity = newName;
+        });
+      }
+
+      data.config.activityTypes = newTypes;
+      saveData();
+      buildActivityDropdown();
+      renderSettingsActivities();
+      updateDisplay();
+      alert('Activity types saved!');
+    }
+
     function rebuildAndUpdate() {
       const people = getPeople();
       document.getElementById('header-subtitle').textContent =
         'Summer tracking for ' + people.join(' & ');
       buildProgressGrid();
       buildMilesInputs();
+      buildActivityDropdown();
       buildDashboardCards();
       buildStatsBars();
       buildStatsTotals();
       renderSettingsPeople();
+      renderSettingsActivities();
       updateDisplay();
-    }
-
-    function reconfigure() {
-      if (!confirm('Go back to setup? Your existing data will be kept.')) return;
-      data.config.people = [];
-      saveData();
-      showSetup();
     }
 
     function formatSinceDate(dateStr) {
@@ -1255,7 +1407,7 @@
           const seg = document.createElement('div');
           seg.className = 'stacked-segment';
           seg.style.width = segPct + '%';
-          seg.style.backgroundColor = ACTIVITY_COLORS[activity] || '#888';
+          seg.style.backgroundColor = activityColor(activity);
           if (segPct > 15) {
             const label = document.createElement('div');
             label.className = 'stacked-segment-label';
@@ -1277,7 +1429,7 @@
       });
 
       document.getElementById('stacked-legend').innerHTML = [...allActivities].map(activity =>
-        `<div class="legend-item"><div class="legend-swatch" style="background:${ACTIVITY_COLORS[activity] || '#888'}"></div>${activity}</div>`
+        `<div class="legend-item"><div class="legend-swatch" style="background:${activityColor(activity)}"></div>${activity}</div>`
       ).join('');
     }
 
@@ -1473,14 +1625,18 @@
     }
 
     function clearAllData() {
-      if (confirm('⚠️ Delete ALL data? Export first for backup!')) {
-        if (confirm('Last chance! This cannot be undone.')) {
-          data = { entries: [], config: data.config || {} };
-          saveData();
-          updateDisplay();
-          alert('✓ All data cleared');
-        }
-      }
+      document.getElementById('clear-modal').classList.add('visible');
+    }
+
+    function dismissClearModal() {
+      document.getElementById('clear-modal').classList.remove('visible');
+    }
+
+    function confirmClearAll() {
+      document.getElementById('clear-modal').classList.remove('visible');
+      data = { entries: [], config: data.config || {} };
+      saveData();
+      updateDisplay();
     }
 
     function saveData() {
