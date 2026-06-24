@@ -355,7 +355,7 @@
 
     .log-entry {
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto auto auto;
       gap: 0.75rem;
       padding: 0.875rem 0.5rem;
       border-bottom: 1px solid var(--border);
@@ -388,6 +388,33 @@
     .log-miles-label {
       font-size: 11px;
       color: var(--text-tertiary);
+    }
+
+    .log-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .log-action-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      font-size: 14px;
+      border: none;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .log-action-btn:active {
+      opacity: 0.7;
+    }
+
+    .log-action-btn.delete {
+      background: none;
     }
 
     .celebration {
@@ -586,6 +613,14 @@
   <script>
     let data = { entries: [] };
     let chart = null;
+    let editingIndex = -1;
+
+    function getLocalDateString(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
 
     function initializeTracker() {
       const saved = localStorage.getItem('milesTrackerData');
@@ -642,7 +677,7 @@
         saveData();
       }
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLocalDateString(new Date());
       document.getElementById('entry-date').value = today;
       updateDisplay();
     }
@@ -739,8 +774,9 @@
         return;
       }
 
-      const sorted = [...data.entries].sort((a, b) => new Date(b.date) - new Date(a.date));
-      logDiv.innerHTML = sorted.map(e => {
+      const indexed = data.entries.map((e, i) => ({ ...e, _index: i }));
+      indexed.sort((a, b) => new Date(b.date) - new Date(a.date));
+      logDiv.innerHTML = indexed.map(e => {
         const dateObj = new Date(e.date + 'T00:00:00');
         const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
         return `
@@ -756,6 +792,10 @@
             <div>
               <div class="log-miles-label">L</div>
               <div class="log-miles">${e.lauren}</div>
+            </div>
+            <div class="log-actions">
+              <button class="log-action-btn" onclick="editEntry(${e._index})">✏️</button>
+              <button class="log-action-btn delete" onclick="deleteEntry(${e._index})">🗑️</button>
             </div>
           </div>
         `;
@@ -787,13 +827,69 @@
         return;
       }
 
-      data.entries.push({ date: dateStr, julian, lauren, activity });
+      if (editingIndex >= 0) {
+        data.entries[editingIndex] = { date: dateStr, julian, lauren, activity };
+        cancelEdit();
+      } else {
+        data.entries.push({ date: dateStr, julian, lauren, activity });
+      }
+
       saveData();
       document.getElementById('julian-miles').value = '';
       document.getElementById('lauren-miles').value = '';
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLocalDateString(new Date());
       document.getElementById('entry-date').value = today;
       updateDisplay();
+    }
+
+    function editEntry(index) {
+      const entry = data.entries[index];
+      editingIndex = index;
+      document.getElementById('entry-date').value = entry.date;
+      document.getElementById('activity-type').value = entry.activity;
+      document.getElementById('julian-miles').value = entry.julian || '';
+      document.getElementById('lauren-miles').value = entry.lauren || '';
+
+      const btn = document.querySelector('.button-group .primary');
+      btn.textContent = '✏️ Update entry';
+      btn.onclick = addEntry;
+
+      let cancelBtn = document.getElementById('cancel-edit-btn');
+      if (!cancelBtn) {
+        cancelBtn = document.createElement('button');
+        cancelBtn.id = 'cancel-edit-btn';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.onclick = cancelEdit;
+        btn.parentElement.appendChild(cancelBtn);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      editingIndex = -1;
+      const btn = document.querySelector('.button-group .primary');
+      btn.textContent = '➕ Add entry';
+
+      const cancelBtn = document.getElementById('cancel-edit-btn');
+      if (cancelBtn) cancelBtn.remove();
+
+      document.getElementById('julian-miles').value = '';
+      document.getElementById('lauren-miles').value = '';
+      const today = getLocalDateString(new Date());
+      document.getElementById('entry-date').value = today;
+    }
+
+    function deleteEntry(index) {
+      const entry = data.entries[index];
+      const dateObj = new Date(entry.date + 'T00:00:00');
+      const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (confirm(`Delete ${entry.activity} on ${dateStr}?`)) {
+        if (editingIndex === index) cancelEdit();
+        data.entries.splice(index, 1);
+        saveData();
+        updateDisplay();
+      }
     }
 
     function switchTab(tab) {
@@ -809,7 +905,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = '100-miles-' + new Date().toISOString().split('T')[0] + '.json';
+      a.download = '100-miles-' + getLocalDateString(new Date()) + '.json';
       a.click();
       URL.revokeObjectURL(url);
     }
