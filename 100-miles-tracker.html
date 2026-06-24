@@ -10,13 +10,13 @@
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%230d6efd' width='180' height='180'/><text x='50%' y='50%' font-size='80' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>🎯</text></svg>">
   <title>100 Miles of Summer</title>
   <style>
-    * { 
-      box-sizing: border-box; 
+    * {
+      box-sizing: border-box;
       -webkit-user-select: none;
       user-select: none;
     }
     input, button, select { -webkit-user-select: text; user-select: text; }
-    
+
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-primary: #1a1a1a;
@@ -168,14 +168,6 @@
       height: 100%;
       border-radius: 3px;
       transition: width 0.3s ease;
-    }
-
-    .julian-progress {
-      background: var(--blue);
-    }
-
-    .lauren-progress {
-      background: var(--green);
     }
 
     .progress-text {
@@ -358,8 +350,7 @@
     }
 
     .log-entry {
-      display: grid;
-      grid-template-columns: 1fr auto auto auto;
+      display: flex;
       gap: 0.75rem;
       padding: 0.875rem 0.5rem;
       border-bottom: 1px solid var(--border);
@@ -368,6 +359,11 @@
 
     .log-entry:last-child {
       border-bottom: none;
+    }
+
+    .log-date-col {
+      flex: 1;
+      min-width: 0;
     }
 
     .log-date {
@@ -585,198 +581,241 @@
       line-height: 1.6;
       margin-bottom: 1rem;
     }
+
+    .setup-screen {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .setup-screen h2 {
+      font-size: 22px;
+      margin: 0 0 0.5rem;
+    }
+
+    .setup-screen p {
+      color: var(--text-secondary);
+      margin: 0 0 1.5rem;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .radio-group input[type="radio"] {
+      -webkit-appearance: auto;
+      appearance: auto;
+      width: 18px;
+      height: 18px;
+    }
+
+    .setup-names {
+      text-align: left;
+      max-width: 320px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .setup-names .input-wrapper {
+      margin-bottom: 1rem;
+    }
+
+    .settings-person-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .settings-person-row input {
+      flex: 1;
+    }
+
+    .settings-person-row button {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
+    <div id="setup-screen" class="setup-screen" style="display: none;">
       <h1>🎯 100 Miles</h1>
-      <p>Summer tracking for Julian & Lauren</p>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Progress</div>
-      <div class="kids-grid">
-        <div class="kid-card">
-          <div class="kid-name">Julian</div>
-          <div class="kid-total"><span id="julian-total">0</span>/100</div>
-          <div class="miles-label">Miles</div>
-          <div class="progress-bar"><div class="progress-fill julian-progress" id="julian-progress" style="width: 0%"></div></div>
-          <div class="progress-text"><span id="julian-percent">0</span>%</div>
+      <h2>Welcome!</h2>
+      <p>Set up your summer miles tracker</p>
+      <div class="card" style="text-align: left;">
+        <label>How many people are you tracking?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="people-count" value="1"> 1</label>
+          <label><input type="radio" name="people-count" value="2" checked> 2</label>
+          <label><input type="radio" name="people-count" value="3"> 3</label>
+          <label><input type="radio" name="people-count" value="4"> 4</label>
         </div>
-        <div class="kid-card">
-          <div class="kid-name">Lauren</div>
-          <div class="kid-total"><span id="lauren-total">0</span>/100</div>
-          <div class="miles-label">Miles</div>
-          <div class="progress-bar"><div class="progress-fill lauren-progress" id="lauren-progress" style="width: 0%"></div></div>
-          <div class="progress-text"><span id="lauren-percent">0</span>%</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="celebration" class="celebration" style="display: none;"></div>
-
-    <div class="section">
-      <div class="card">
-        <div class="section-title">Log activity</div>
-        
-        <div class="form-row">
+        <div id="setup-names" class="setup-names"></div>
+        <div class="form-row full" style="margin-bottom: 0.5rem;">
           <div class="input-wrapper">
-            <label for="entry-date">Date</label>
-            <input type="date" id="entry-date">
-          </div>
-          <div class="input-wrapper">
-            <label for="activity-type">Activity</label>
-            <select id="activity-type">
-              <option value="Walk">Walk</option>
-              <option value="Run">Run</option>
-              <option value="Row">Row</option>
-              <option value="Bike">Bike</option>
-            </select>
+            <label for="setup-start-date">Summer Start Date</label>
+            <input type="date" id="setup-start-date">
           </div>
         </div>
-
-        <div class="form-row full">
-          <div class="input-wrapper">
-            <label>Julian (miles)</label>
-            <div class="miles-input-group">
-              <button class="miles-btn" onclick="decrementMiles('julian')">−</button>
-              <input type="number" id="julian-miles" min="0" step="0.5" placeholder="0">
-              <button class="miles-btn" onclick="incrementMiles('julian')">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-row full">
-          <div class="input-wrapper">
-            <label>Lauren (miles)</label>
-            <div class="miles-input-group">
-              <button class="miles-btn" onclick="decrementMiles('lauren')">−</button>
-              <input type="number" id="lauren-miles" min="0" step="0.5" placeholder="0">
-              <button class="miles-btn" onclick="incrementMiles('lauren')">+</button>
-            </div>
-          </div>
-        </div>
-
         <div class="button-group">
-          <button class="primary" onclick="addEntry()">➕ Add entry</button>
+          <button class="primary" onclick="finishSetup()">Start Tracking</button>
         </div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="card">
-        <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-          <button class="tab-btn" onclick="switchTab('log')">Log</button>
-          <button class="tab-btn" onclick="switchTab('stats')">Stats</button>
-          <button class="tab-btn" onclick="switchTab('sync')">Sync</button>
-        </div>
+    <div id="app-screen" style="display: none;">
+      <div class="header">
+        <h1>🎯 100 Miles</h1>
+        <p id="header-subtitle"></p>
+      </div>
 
-        <div id="dashboard" class="tab-content active">
-          <div class="section-title">Activity overview</div>
-          <div class="dash-since" id="dashboard-tracking-since" style="margin-bottom: 0.75rem;"></div>
-          <div id="dashboard-no-config" class="info-text" style="display: none;">
-            Set a start date in Sync tab to calculate activity
-          </div>
-          <div id="dashboard-cards" class="kids-grid">
-            <div class="stat-card">
-              <div class="stat-label">Julian</div>
-              <div class="dash-stat" id="julian-active-days">0</div>
-              <div class="dash-detail">active days</div>
-              <div class="dash-stat" id="julian-inactive-days">0</div>
-              <div class="dash-detail">inactive days</div>
-              <div class="dash-pct" id="julian-active-pct">0% active</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Lauren</div>
-              <div class="dash-stat" id="lauren-active-days">0</div>
-              <div class="dash-detail">active days</div>
-              <div class="dash-stat" id="lauren-inactive-days">0</div>
-              <div class="dash-detail">inactive days</div>
-              <div class="dash-pct" id="lauren-active-pct">0% active</div>
-            </div>
-          </div>
-        </div>
+      <div class="section">
+        <div class="section-title">Progress</div>
+        <div class="kids-grid" id="progress-grid"></div>
+      </div>
 
-        <div id="log" class="tab-content">
-          <div class="section-title">Recent activities</div>
-          <div id="activity-log">
-            <div class="empty-state">No entries yet</div>
-          </div>
-        </div>
+      <div id="celebration" class="celebration" style="display: none;"></div>
 
-        <div id="stats" class="tab-content">
-          <div class="section-title">Progress by activity</div>
-          <div class="progress-chart-section">
-            <div class="progress-chart-label">Julian's Progress</div>
-            <div class="stacked-bar-container">
-              <div class="stacked-bar" id="julian-stacked-bar"></div>
-            </div>
-            <div class="stacked-bar-scale">
-              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
-            </div>
-          </div>
-          <div class="progress-chart-section">
-            <div class="progress-chart-label">Lauren's Progress</div>
-            <div class="stacked-bar-container">
-              <div class="stacked-bar" id="lauren-stacked-bar"></div>
-            </div>
-            <div class="stacked-bar-scale">
-              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
-            </div>
-          </div>
-          <div class="stacked-legend" id="stacked-legend"></div>
-          <div class="kids-grid" style="margin-top: 1rem;">
-            <div class="stat-card">
-              <div class="stat-label">Julian's Total</div>
-              <div class="stat-value" id="stats-julian-total">0</div>
-              <div class="miles-label">Miles</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Lauren's Total</div>
-              <div class="stat-value" id="stats-lauren-total">0</div>
-              <div class="miles-label">Miles</div>
-            </div>
-          </div>
-        </div>
+      <div class="section">
+        <div class="card">
+          <div class="section-title">Log activity</div>
 
-        <div id="sync" class="tab-content">
-          <div class="section-title">Settings</div>
-          <div class="form-row full" style="margin-bottom: 0.5rem;">
+          <div class="form-row">
             <div class="input-wrapper">
-              <label for="summer-start-date">Summer Start Date</label>
-              <div class="miles-input-group">
-                <input type="date" id="summer-start-date" placeholder="Not set">
-                <button class="primary" onclick="saveSummerStart()" style="width: auto; padding: 0.75rem 1rem; font-size: 14px;">Save</button>
+              <label for="entry-date">Date</label>
+              <input type="date" id="entry-date">
+            </div>
+            <div class="input-wrapper">
+              <label for="activity-type">Activity</label>
+              <select id="activity-type">
+                <option value="Walk">Walk</option>
+                <option value="Run">Run</option>
+                <option value="Row">Row</option>
+                <option value="Bike">Bike</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="miles-inputs"></div>
+
+          <div class="button-group" id="entry-buttons">
+            <button class="primary" onclick="addEntry()">➕ Add entry</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="card">
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard', this)">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('log', this)">Log</button>
+            <button class="tab-btn" onclick="switchTab('stats', this)">Stats</button>
+            <button class="tab-btn" onclick="switchTab('sync', this)">Sync</button>
+          </div>
+
+          <div id="dashboard" class="tab-content active">
+            <div class="section-title">Activity overview</div>
+            <div class="dash-since" id="dashboard-tracking-since" style="margin-bottom: 0.75rem;"></div>
+            <div id="dashboard-no-config" class="info-text" style="display: none;">
+              Set a start date in Sync tab to calculate activity
+            </div>
+            <div id="dashboard-cards" class="kids-grid"></div>
+          </div>
+
+          <div id="log" class="tab-content">
+            <div class="section-title">Recent activities</div>
+            <div id="activity-log">
+              <div class="empty-state">No entries yet</div>
+            </div>
+          </div>
+
+          <div id="stats" class="tab-content">
+            <div class="section-title">Progress by activity</div>
+            <div id="stats-bars"></div>
+            <div class="stacked-legend" id="stacked-legend"></div>
+            <div class="kids-grid" id="stats-totals" style="margin-top: 1rem;"></div>
+          </div>
+
+          <div id="sync" class="tab-content">
+            <div class="section-title">Settings</div>
+            <div class="form-row full" style="margin-bottom: 0.5rem;">
+              <div class="input-wrapper">
+                <label for="summer-start-date">Summer Start Date</label>
+                <div class="miles-input-group">
+                  <input type="date" id="summer-start-date" placeholder="Not set">
+                  <button class="primary" onclick="saveSummerStart()" style="width: auto; padding: 0.75rem 1rem; font-size: 14px;">Save</button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="dash-since" id="summer-start-display" style="margin-bottom: 1.25rem;"></div>
+            <div class="dash-since" id="summer-start-display" style="margin-bottom: 1.25rem;"></div>
 
-          <div class="section-title" style="margin-top: 0.5rem;">Data sync</div>
-          <div class="info-text">
-            Your data is automatically saved to this device. Export to any folder or drive for backup or import from a saved file.
+            <div class="section-title" style="margin-top: 0.5rem;">People</div>
+            <div id="settings-people"></div>
+            <div class="button-group two-col" style="margin-bottom: 1rem;">
+              <button id="add-person-btn" onclick="addPerson()">➕ Add person</button>
+              <button onclick="saveSettings()">💾 Save Settings</button>
+            </div>
+
+            <div class="section-title" style="margin-top: 0.5rem;">Data sync</div>
+            <div class="info-text">
+              Your data is automatically saved to this device. Export to any folder or drive for backup or import from a saved file.
+            </div>
+            <div class="button-group two-col">
+              <button onclick="exportData()">📥 Export</button>
+              <button onclick="importData()">📤 Import</button>
+            </div>
+            <div class="button-group" style="margin-top: 1rem;">
+              <button class="danger" onclick="clearAllData()">🗑️ Clear all data</button>
+            </div>
+            <div class="button-group" style="margin-top: 0.75rem;">
+              <button onclick="reconfigure()">🔄 Reconfigure People</button>
+            </div>
+            <div class="info-text" style="margin-top: 1rem; font-size: 12px;">
+              💡 Save exports to any drive or email for backup across devices.
+            </div>
+            <div class="sync-status" id="sync-status">Local storage ready</div>
           </div>
-          <div class="button-group two-col">
-            <button onclick="exportData()">📥 Export</button>
-            <button onclick="importData()">📤 Import</button>
-          </div>
-          <div class="button-group" style="margin-top: 1rem;">
-            <button class="danger" onclick="clearAllData()">🗑️ Clear all data</button>
-          </div>
-          <div class="info-text" style="margin-top: 1rem; font-size: 12px;">
-            💡 Save exports to any drive or email for backup across devices.
-          </div>
-          <div class="sync-status" id="sync-status">Local storage ready</div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    let data = { entries: [] };
+    const PERSON_COLORS = ['#4a9eff', '#4caf50', '#ff9800', '#9c27b0'];
+    const ACTIVITY_COLORS = {
+      'Walk': '#4a9eff',
+      'Run': '#ff9800',
+      'Row': '#9c27b0',
+      'Bike': '#4caf50'
+    };
+
+    let data = { entries: [], config: {} };
     let editingIndex = -1;
+
+    function getPeople() {
+      return (data.config && data.config.people) || [];
+    }
+
+    function personColor(index) {
+      return PERSON_COLORS[index % PERSON_COLORS.length];
+    }
+
+    function personInitial(name) {
+      return name.charAt(0).toUpperCase();
+    }
 
     function getLocalDateString(d) {
       const year = d.getFullYear();
@@ -785,71 +824,307 @@
       return `${year}-${month}-${day}`;
     }
 
+    function personMiles(entry, name) {
+      if (entry.miles && typeof entry.miles === 'object') {
+        return Number(entry.miles[name]) || 0;
+      }
+      return 0;
+    }
+
+    function migrateData() {
+      if (!data.config) data.config = {};
+
+      const needsMigration = data.entries.length > 0 && data.entries[0].miles === undefined;
+      if (!needsMigration) return;
+
+      const oldPeople = [];
+      if (data.entries.some(e => e.julian !== undefined)) oldPeople.push({ old: 'julian', name: 'Julian' });
+      if (data.entries.some(e => e.lauren !== undefined)) oldPeople.push({ old: 'lauren', name: 'Lauren' });
+
+      if (oldPeople.length > 0 && (!data.config.people || data.config.people.length === 0)) {
+        data.config.people = oldPeople.map(p => p.name);
+      }
+
+      data.entries = data.entries.map(e => {
+        if (e.miles !== undefined) return e;
+        const miles = {};
+        oldPeople.forEach(p => {
+          miles[p.name] = Number(e[p.old]) || 0;
+        });
+        return { date: e.date, miles, activity: e.activity };
+      });
+    }
+
     function initializeTracker() {
       const saved = localStorage.getItem('milesTrackerData');
       if (saved) {
         data = JSON.parse(saved);
         if (!data.config) data.config = {};
-      } else {
-        data.entries = [
-          {date: '2025-06-15', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-06-16', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-06-21', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-06-23', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-06-24', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-06-29', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-06-30', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-07-01', julian: 0, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-05', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-06', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-07-08', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-11', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-07-13', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-07-17', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-07-19', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-21', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-07-23', julian: 4, lauren: 4, activity: 'Walk'},
-          {date: '2025-07-25', julian: 0, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-26', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-27', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-28', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-07-29', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-08-02', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-03', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-08-04', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-05', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-09', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-10', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-08-11', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-08-12', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-14', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-08-16', julian: 2, lauren: 2, activity: 'Rowing'},
-          {date: '2025-08-17', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-17', julian: 1, lauren: 1, activity: 'Rowing'},
-          {date: '2025-08-18', julian: 3, lauren: 3, activity: 'Walk'},
-          {date: '2025-08-20', julian: 1, lauren: 1, activity: 'Walk'},
-          {date: '2025-08-22', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-23', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-24', julian: 2, lauren: 3, activity: 'Walk'},
-          {date: '2025-08-25', julian: 2, lauren: 2, activity: 'Walk'},
-          {date: '2025-08-28', julian: 2, lauren: 0, activity: 'Walk'},
-          {date: '2025-08-30', julian: 1, lauren: 2, activity: 'Walk'},
-          {date: '2025-09-04', julian: 5, lauren: 0, activity: 'Bike'},
-          {date: '2025-09-06', julian: 2, lauren: 3, activity: 'Walk'},
-          {date: '2025-09-07', julian: 1, lauren: 0, activity: 'Walk'}
-        ];
-        data.config = {};
-        saveData();
+        migrateData();
       }
+
+      if (!data.config.people || data.config.people.length === 0) {
+        showSetup();
+        return;
+      }
+
+      showApp();
+    }
+
+    function showSetup() {
+      document.getElementById('setup-screen').style.display = '';
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('setup-start-date').value = getLocalDateString(new Date());
+      renderSetupNames();
+
+      document.querySelectorAll('input[name="people-count"]').forEach(radio => {
+        radio.addEventListener('change', renderSetupNames);
+      });
+    }
+
+    function renderSetupNames() {
+      const count = parseInt(document.querySelector('input[name="people-count"]:checked').value);
+      const container = document.getElementById('setup-names');
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        container.innerHTML += `
+          <div class="input-wrapper">
+            <label>Person ${i + 1} name</label>
+            <input type="text" id="setup-name-${i}" placeholder="Enter name">
+          </div>
+        `;
+      }
+    }
+
+    function finishSetup() {
+      const count = parseInt(document.querySelector('input[name="people-count"]:checked').value);
+      const people = [];
+      for (let i = 0; i < count; i++) {
+        const name = document.getElementById(`setup-name-${i}`).value.trim();
+        if (!name) {
+          alert(`Please enter a name for Person ${i + 1}`);
+          return;
+        }
+        if (people.includes(name)) {
+          alert(`Each person needs a unique name. "${name}" is used more than once.`);
+          return;
+        }
+        people.push(name);
+      }
+
+      const startDate = document.getElementById('setup-start-date').value;
+      data.config.people = people;
+      if (startDate) data.config.summerStartDate = startDate;
+
+      if (data.entries.length > 0) {
+        data.entries.forEach(entry => {
+          if (!entry.miles) entry.miles = {};
+          people.forEach(name => {
+            if (entry.miles[name] === undefined) entry.miles[name] = 0;
+          });
+        });
+      }
+
+      saveData();
+      showApp();
+    }
+
+    function showApp() {
+      document.getElementById('setup-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = '';
+
+      const people = getPeople();
+      document.getElementById('header-subtitle').textContent =
+        'Summer tracking for ' + people.join(' & ');
+
+      buildProgressGrid();
+      buildMilesInputs();
+      buildDashboardCards();
+      buildStatsBars();
+      buildStatsTotals();
+      renderSettingsPeople();
 
       if (data.config.summerStartDate) {
         document.getElementById('summer-start-date').value = data.config.summerStartDate;
       }
       updateSummerStartDisplay();
 
-      const today = getLocalDateString(new Date());
-      document.getElementById('entry-date').value = today;
+      document.getElementById('entry-date').value = getLocalDateString(new Date());
       updateDisplay();
+    }
+
+    function buildProgressGrid() {
+      const grid = document.getElementById('progress-grid');
+      grid.innerHTML = getPeople().map((name, i) => `
+        <div class="kid-card">
+          <div class="kid-name">${name}</div>
+          <div class="kid-total"><span id="total-${i}">0</span>/100</div>
+          <div class="miles-label">Miles</div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-${i}" style="width:0%; background:${personColor(i)}"></div></div>
+          <div class="progress-text"><span id="percent-${i}">0</span>%</div>
+        </div>
+      `).join('');
+    }
+
+    function buildMilesInputs() {
+      const container = document.getElementById('miles-inputs');
+      container.innerHTML = getPeople().map((name, i) => `
+        <div class="form-row full">
+          <div class="input-wrapper">
+            <label>${name} (miles)</label>
+            <div class="miles-input-group">
+              <button class="miles-btn" onclick="decrementMiles(${i})">−</button>
+              <input type="number" id="miles-input-${i}" min="0" step="0.5" placeholder="0">
+              <button class="miles-btn" onclick="incrementMiles(${i})">+</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function buildDashboardCards() {
+      const container = document.getElementById('dashboard-cards');
+      container.innerHTML = getPeople().map((name, i) => `
+        <div class="stat-card">
+          <div class="stat-label">${name}</div>
+          <div class="dash-stat" id="dash-active-${i}">0</div>
+          <div class="dash-detail">active days</div>
+          <div class="dash-stat" id="dash-inactive-${i}">0</div>
+          <div class="dash-detail">inactive days</div>
+          <div class="dash-pct" id="dash-pct-${i}">0% active</div>
+        </div>
+      `).join('');
+    }
+
+    function buildStatsBars() {
+      const container = document.getElementById('stats-bars');
+      container.innerHTML = getPeople().map((name, i) => `
+        <div class="progress-chart-section">
+          <div class="progress-chart-label">${name}'s Progress</div>
+          <div class="stacked-bar-container">
+            <div class="stacked-bar" id="stacked-bar-${i}"></div>
+          </div>
+          <div class="stacked-bar-scale">
+            <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function buildStatsTotals() {
+      const container = document.getElementById('stats-totals');
+      container.innerHTML = getPeople().map((name, i) => `
+        <div class="stat-card">
+          <div class="stat-label">${name}'s Total</div>
+          <div class="stat-value" id="stats-total-${i}">0</div>
+          <div class="miles-label">Miles</div>
+        </div>
+      `).join('');
+    }
+
+    function renderSettingsPeople() {
+      const container = document.getElementById('settings-people');
+      const people = getPeople();
+      container.innerHTML = people.map((name, i) => `
+        <div class="settings-person-row">
+          <input type="text" id="settings-name-${i}" value="${name}">
+          <button class="danger" onclick="removePerson(${i})" style="font-size: 14px;">✕</button>
+        </div>
+      `).join('');
+      document.getElementById('add-person-btn').style.display = people.length >= 4 ? 'none' : '';
+    }
+
+    function addPerson() {
+      const people = getPeople();
+      if (people.length >= 4) return;
+      people.push('');
+      renderSettingsPeople();
+      document.getElementById(`settings-name-${people.length - 1}`).focus();
+    }
+
+    function removePerson(index) {
+      const people = getPeople();
+      if (people.length <= 1) {
+        alert('You need at least one person.');
+        return;
+      }
+      const name = people[index];
+      if (name && !confirm(`Remove ${name}? Their miles data will be deleted from all entries.`)) return;
+
+      people.splice(index, 1);
+      if (name) {
+        data.entries.forEach(entry => {
+          if (entry.miles) delete entry.miles[name];
+        });
+      }
+      saveData();
+      renderSettingsPeople();
+      rebuildAndUpdate();
+    }
+
+    function saveSettings() {
+      const people = getPeople();
+      const newNames = [];
+      for (let i = 0; i < people.length; i++) {
+        const input = document.getElementById(`settings-name-${i}`);
+        if (!input) continue;
+        const name = input.value.trim();
+        if (!name) {
+          alert(`Please enter a name for each person.`);
+          return;
+        }
+        if (newNames.includes(name)) {
+          alert(`Each person needs a unique name. "${name}" is used more than once.`);
+          return;
+        }
+        newNames.push(name);
+      }
+
+      const oldNames = [...people];
+      for (let i = 0; i < oldNames.length; i++) {
+        const oldName = oldNames[i];
+        const newName = newNames[i];
+        if (oldName === newName) continue;
+        if (!oldName) {
+          data.entries.forEach(entry => {
+            if (!entry.miles) entry.miles = {};
+            if (entry.miles[newName] === undefined) entry.miles[newName] = 0;
+          });
+          continue;
+        }
+        data.entries.forEach(entry => {
+          if (!entry.miles) entry.miles = {};
+          if (entry.miles[oldName] !== undefined) {
+            entry.miles[newName] = entry.miles[oldName];
+            delete entry.miles[oldName];
+          }
+        });
+      }
+
+      data.config.people = newNames;
+      saveData();
+      rebuildAndUpdate();
+      alert('Settings saved!');
+    }
+
+    function rebuildAndUpdate() {
+      const people = getPeople();
+      document.getElementById('header-subtitle').textContent =
+        'Summer tracking for ' + people.join(' & ');
+      buildProgressGrid();
+      buildMilesInputs();
+      buildDashboardCards();
+      buildStatsBars();
+      buildStatsTotals();
+      renderSettingsPeople();
+      updateDisplay();
+    }
+
+    function reconfigure() {
+      if (!confirm('Go back to setup? Your existing data will be kept.')) return;
+      data.config.people = [];
+      saveData();
+      showSetup();
     }
 
     function formatSinceDate(dateStr) {
@@ -872,7 +1147,6 @@
         alert('Please select a date');
         return;
       }
-      if (!data.config) data.config = {};
       data.config.summerStartDate = val;
       saveData();
       updateSummerStartDisplay();
@@ -880,29 +1154,27 @@
     }
 
     function updateDisplay() {
-      const julianTotal = Math.round(data.entries.reduce((sum, e) => sum + (Number(e.julian) || 0), 0) * 10) / 10;
-      const laurenTotal = Math.round(data.entries.reduce((sum, e) => sum + (Number(e.lauren) || 0), 0) * 10) / 10;
+      const people = getPeople();
 
-      document.getElementById('julian-total').textContent = julianTotal;
-      document.getElementById('lauren-total').textContent = laurenTotal;
-
-      const julianPercent = Math.round((julianTotal / 100) * 100);
-      const laurenPercent = Math.round((laurenTotal / 100) * 100);
-
-      document.getElementById('julian-percent').textContent = julianPercent;
-      document.getElementById('lauren-percent').textContent = laurenPercent;
-      document.getElementById('julian-progress').style.width = Math.min(julianPercent, 100) + '%';
-      document.getElementById('lauren-progress').style.width = Math.min(laurenPercent, 100) + '%';
+      people.forEach((name, i) => {
+        const total = Math.round(data.entries.reduce((sum, e) => sum + personMiles(e, name), 0) * 10) / 10;
+        const pct = Math.round((total / 100) * 100);
+        document.getElementById(`total-${i}`).textContent = total;
+        document.getElementById(`percent-${i}`).textContent = pct;
+        document.getElementById(`progress-${i}`).style.width = Math.min(pct, 100) + '%';
+      });
 
       const celebDiv = document.getElementById('celebration');
-      if (julianPercent === 100 && laurenPercent === 100) {
-        celebDiv.textContent = '🎉 Both kids hit 100 miles! Amazing summer!';
+      const completed = people.filter(name => {
+        const total = data.entries.reduce((sum, e) => sum + personMiles(e, name), 0);
+        return total >= 100;
+      });
+
+      if (completed.length === people.length && people.length > 0) {
+        celebDiv.textContent = '🎉 Everyone hit 100 miles! Amazing summer!';
         celebDiv.style.display = 'block';
-      } else if (julianPercent === 100) {
-        celebDiv.textContent = '🎉 Julian reached 100 miles!';
-        celebDiv.style.display = 'block';
-      } else if (laurenPercent === 100) {
-        celebDiv.textContent = '🎉 Lauren reached 100 miles!';
+      } else if (completed.length > 0) {
+        celebDiv.textContent = '🎉 ' + completed.join(' & ') + ' reached 100 miles!';
         celebDiv.style.display = 'block';
       } else {
         celebDiv.style.display = 'none';
@@ -913,6 +1185,7 @@
     }
 
     function updateDashboard() {
+      const people = getPeople();
       const startDate = data.config && data.config.summerStartDate;
       const noConfig = document.getElementById('dashboard-no-config');
       const cards = document.getElementById('dashboard-cards');
@@ -934,40 +1207,29 @@
       const end = new Date(todayStr + 'T00:00:00');
       const totalDays = Math.floor((end - start) / 86400000) + 1;
 
-      function calcDays(kid) {
-        const kidEntries = data.entries.filter(e => (Number(e[kid]) || 0) > 0 && e.date >= startDate);
-        const uniqueDates = new Set(kidEntries.map(e => e.date));
-        const activeDays = uniqueDates.size;
+      people.forEach((name, i) => {
+        const activeDates = new Set(
+          data.entries.filter(e => personMiles(e, name) > 0 && e.date >= startDate).map(e => e.date)
+        );
+        const activeDays = activeDates.size;
         const inactiveDays = totalDays - activeDays;
         const pct = totalDays > 0 ? Math.round((activeDays / totalDays) * 100) : 0;
-        return { active: activeDays, inactive: inactiveDays, pct };
-      }
 
-      const julian = calcDays('julian');
-      const lauren = calcDays('lauren');
-
-      document.getElementById('julian-active-days').textContent = julian.active;
-      document.getElementById('julian-inactive-days').textContent = julian.inactive;
-      document.getElementById('julian-active-pct').textContent = julian.pct + '% active';
-      document.getElementById('lauren-active-days').textContent = lauren.active;
-      document.getElementById('lauren-inactive-days').textContent = lauren.inactive;
-      document.getElementById('lauren-active-pct').textContent = lauren.pct + '% active';
+        document.getElementById(`dash-active-${i}`).textContent = activeDays;
+        document.getElementById(`dash-inactive-${i}`).textContent = inactiveDays;
+        document.getElementById(`dash-pct-${i}`).textContent = pct + '% active';
+      });
     }
 
     function updateStats() {
       updateDashboard();
 
-      const activityColors = {
-        'Walk': '#4a9eff',
-        'Run': '#ff9800',
-        'Row': '#9c27b0',
-        'Bike': '#4caf50'
-      };
+      const people = getPeople();
 
-      function getMilesByActivity(kid) {
+      function getMilesByActivity(name) {
         const totals = {};
         data.entries.forEach(e => {
-          const miles = Number(e[kid]) || 0;
+          const miles = personMiles(e, name);
           if (miles > 0) {
             if (!totals[e.activity]) totals[e.activity] = 0;
             totals[e.activity] += miles;
@@ -980,54 +1242,49 @@
         return Math.round(Object.values(totals).reduce((s, v) => s + v, 0) * 10) / 10;
       }
 
-      function renderBar(containerId, totals) {
-        const bar = document.getElementById(containerId);
-        bar.innerHTML = '';
+      function renderBar(barEl, totals) {
+        barEl.innerHTML = '';
         const totalMiles = sumTotals(totals);
         const barPct = Math.min((totalMiles / 100) * 100, 100);
-        bar.style.width = barPct + '%';
-
+        barEl.style.width = barPct + '%';
         if (totalMiles === 0) return;
 
-        const activities = Object.keys(totals).filter(a => totals[a] > 0);
-        activities.forEach(activity => {
+        Object.keys(totals).filter(a => totals[a] > 0).forEach(activity => {
           const miles = Math.round(totals[activity] * 10) / 10;
           const segPct = (miles / totalMiles) * 100;
           const seg = document.createElement('div');
           seg.className = 'stacked-segment';
           seg.style.width = segPct + '%';
-          seg.style.backgroundColor = activityColors[activity] || '#888';
+          seg.style.backgroundColor = ACTIVITY_COLORS[activity] || '#888';
           if (segPct > 15) {
             const label = document.createElement('div');
             label.className = 'stacked-segment-label';
             label.textContent = miles;
             seg.appendChild(label);
           }
-          bar.appendChild(seg);
+          barEl.appendChild(seg);
         });
       }
 
-      const julianTotals = getMilesByActivity('julian');
-      const laurenTotals = getMilesByActivity('lauren');
+      const allActivities = new Set();
+      people.forEach((name, i) => {
+        const totals = getMilesByActivity(name);
+        const barEl = document.getElementById(`stacked-bar-${i}`);
+        if (barEl) renderBar(barEl, totals);
+        const totalEl = document.getElementById(`stats-total-${i}`);
+        if (totalEl) totalEl.textContent = sumTotals(totals);
+        Object.keys(totals).filter(a => totals[a] > 0).forEach(a => allActivities.add(a));
+      });
 
-      renderBar('julian-stacked-bar', julianTotals);
-      renderBar('lauren-stacked-bar', laurenTotals);
-
-      document.getElementById('stats-julian-total').textContent = sumTotals(julianTotals);
-      document.getElementById('stats-lauren-total').textContent = sumTotals(laurenTotals);
-
-      const usedActivities = new Set([
-        ...Object.keys(julianTotals).filter(a => julianTotals[a] > 0),
-        ...Object.keys(laurenTotals).filter(a => laurenTotals[a] > 0)
-      ]);
-      const legendDiv = document.getElementById('stacked-legend');
-      legendDiv.innerHTML = [...usedActivities].map(activity =>
-        `<div class="legend-item"><div class="legend-swatch" style="background:${activityColors[activity] || '#888'}"></div>${activity}</div>`
+      document.getElementById('stacked-legend').innerHTML = [...allActivities].map(activity =>
+        `<div class="legend-item"><div class="legend-swatch" style="background:${ACTIVITY_COLORS[activity] || '#888'}"></div>${activity}</div>`
       ).join('');
     }
 
     function updateLog() {
       const logDiv = document.getElementById('activity-log');
+      const people = getPeople();
+
       if (data.entries.length === 0) {
         logDiv.innerHTML = '<div class="empty-state">No entries yet</div>';
         return;
@@ -1035,23 +1292,23 @@
 
       const indexed = data.entries.map((e, i) => ({ ...e, _index: i }));
       indexed.sort((a, b) => new Date(b.date) - new Date(a.date));
+
       logDiv.innerHTML = indexed.map(e => {
         const dateObj = new Date(e.date + 'T00:00:00');
         const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+        const milesCols = people.map(name => `
+          <div class="log-miles-col">
+            <div class="log-miles-label">${personInitial(name)}</div>
+            <div class="log-miles">${personMiles(e, name)}</div>
+          </div>
+        `).join('');
         return `
           <div class="log-entry">
-            <div>
+            <div class="log-date-col">
               <div class="log-date">${dateStr}</div>
               <div class="log-activity">${e.activity}</div>
             </div>
-            <div class="log-miles-col">
-              <div class="log-miles-label">J</div>
-              <div class="log-miles">${e.julian}</div>
-            </div>
-            <div class="log-miles-col">
-              <div class="log-miles-label">L</div>
-              <div class="log-miles">${e.lauren}</div>
-            </div>
+            ${milesCols}
             <div class="log-actions">
               <button class="log-action-btn" onclick="editEntry(${e._index})">✏️</button>
               <button class="log-action-btn delete" onclick="deleteEntry(${e._index})">🗑️</button>
@@ -1061,14 +1318,14 @@
       }).join('');
     }
 
-    function incrementMiles(kid) {
-      const input = document.getElementById(kid + '-miles');
+    function incrementMiles(index) {
+      const input = document.getElementById(`miles-input-${index}`);
       const current = parseFloat(input.value) || 0;
       input.value = (current + 0.5).toFixed(1);
     }
 
-    function decrementMiles(kid) {
-      const input = document.getElementById(kid + '-miles');
+    function decrementMiles(index) {
+      const input = document.getElementById(`miles-input-${index}`);
       const current = parseFloat(input.value) || 0;
       if (current > 0) {
         input.value = (current - 0.5).toFixed(1);
@@ -1076,42 +1333,54 @@
     }
 
     function addEntry() {
+      const people = getPeople();
       const dateStr = document.getElementById('entry-date').value;
-      const julian = parseFloat(document.getElementById('julian-miles').value) || 0;
-      const lauren = parseFloat(document.getElementById('lauren-miles').value) || 0;
       const activity = document.getElementById('activity-type').value;
 
-      if (!dateStr || (julian === 0 && lauren === 0)) {
+      const miles = {};
+      let anyMiles = false;
+      people.forEach((name, i) => {
+        const val = parseFloat(document.getElementById(`miles-input-${i}`).value) || 0;
+        miles[name] = val;
+        if (val > 0) anyMiles = true;
+      });
+
+      if (!dateStr || !anyMiles) {
         alert('Please fill in the date and at least one distance');
         return;
       }
 
+      const entry = { date: dateStr, miles, activity };
+
       if (editingIndex >= 0) {
-        data.entries[editingIndex] = { date: dateStr, julian, lauren, activity };
+        data.entries[editingIndex] = entry;
         cancelEdit();
       } else {
-        data.entries.push({ date: dateStr, julian, lauren, activity });
+        data.entries.push(entry);
       }
 
       saveData();
-      document.getElementById('julian-miles').value = '';
-      document.getElementById('lauren-miles').value = '';
-      const today = getLocalDateString(new Date());
-      document.getElementById('entry-date').value = today;
+      people.forEach((_, i) => {
+        document.getElementById(`miles-input-${i}`).value = '';
+      });
+      document.getElementById('entry-date').value = getLocalDateString(new Date());
       updateDisplay();
     }
 
     function editEntry(index) {
       const entry = data.entries[index];
+      const people = getPeople();
       editingIndex = index;
       document.getElementById('entry-date').value = entry.date;
       document.getElementById('activity-type').value = entry.activity;
-      document.getElementById('julian-miles').value = entry.julian || '';
-      document.getElementById('lauren-miles').value = entry.lauren || '';
 
-      const btn = document.querySelector('.button-group .primary');
+      people.forEach((name, i) => {
+        const val = personMiles(entry, name);
+        document.getElementById(`miles-input-${i}`).value = val || '';
+      });
+
+      const btn = document.querySelector('#entry-buttons .primary');
       btn.textContent = '✏️ Update entry';
-      btn.onclick = addEntry;
 
       let cancelBtn = document.getElementById('cancel-edit-btn');
       if (!cancelBtn) {
@@ -1127,16 +1396,16 @@
 
     function cancelEdit() {
       editingIndex = -1;
-      const btn = document.querySelector('.button-group .primary');
+      const btn = document.querySelector('#entry-buttons .primary');
       btn.textContent = '➕ Add entry';
 
       const cancelBtn = document.getElementById('cancel-edit-btn');
       if (cancelBtn) cancelBtn.remove();
 
-      document.getElementById('julian-miles').value = '';
-      document.getElementById('lauren-miles').value = '';
-      const today = getLocalDateString(new Date());
-      document.getElementById('entry-date').value = today;
+      getPeople().forEach((_, i) => {
+        document.getElementById(`miles-input-${i}`).value = '';
+      });
+      document.getElementById('entry-date').value = getLocalDateString(new Date());
     }
 
     function deleteEntry(index) {
@@ -1151,11 +1420,11 @@
       }
     }
 
-    function switchTab(tab) {
+    function switchTab(tab, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tab).classList.add('active');
-      event.target.classList.add('active');
+      btn.classList.add('active');
     }
 
     function exportData() {
@@ -1180,15 +1449,16 @@
           try {
             const imported = JSON.parse(evt.target.result);
             if (imported.entries && Array.isArray(imported.entries)) {
-              const existingConfig = data.config || {};
               data = imported;
-              if (!data.config) data.config = existingConfig;
+              if (!data.config) data.config = {};
+              migrateData();
               saveData();
-              updateSummerStartDisplay();
-              if (data.config.summerStartDate) {
-                document.getElementById('summer-start-date').value = data.config.summerStartDate;
+
+              if (!data.config.people || data.config.people.length === 0) {
+                showSetup();
+              } else {
+                showApp();
               }
-              updateDisplay();
               alert('✓ Data imported!');
             } else {
               alert('Invalid file format');
