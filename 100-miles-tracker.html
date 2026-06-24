@@ -462,14 +462,108 @@
       color: var(--text-primary);
     }
 
-    .chart-container {
+    .dash-stat {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .dash-detail {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+
+    .dash-pct {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-top: 0.25rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .dash-since {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 0.25rem;
+    }
+
+    .progress-chart-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .progress-chart-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .stacked-bar-container {
+      width: 100%;
+      height: 28px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .stacked-bar {
+      display: flex;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .stacked-segment {
+      height: 100%;
+      flex-shrink: 0;
       position: relative;
-      height: 280px;
-      margin-bottom: 1rem;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem;
+    }
+
+    .stacked-segment-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .stacked-bar-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 0.25rem;
+      padding: 0 1px;
+    }
+
+    .stacked-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
     }
 
     .empty-state {
@@ -573,12 +667,39 @@
     <div class="section">
       <div class="card">
         <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('log')">Log</button>
+          <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+          <button class="tab-btn" onclick="switchTab('log')">Log</button>
           <button class="tab-btn" onclick="switchTab('stats')">Stats</button>
           <button class="tab-btn" onclick="switchTab('sync')">Sync</button>
         </div>
 
-        <div id="log" class="tab-content active">
+        <div id="dashboard" class="tab-content active">
+          <div class="section-title">Activity overview</div>
+          <div class="dash-since" id="dashboard-tracking-since" style="margin-bottom: 0.75rem;"></div>
+          <div id="dashboard-no-config" class="info-text" style="display: none;">
+            Set a start date in Sync tab to calculate activity
+          </div>
+          <div id="dashboard-cards" class="kids-grid">
+            <div class="stat-card">
+              <div class="stat-label">Julian</div>
+              <div class="dash-stat" id="julian-active-days">0</div>
+              <div class="dash-detail">active days</div>
+              <div class="dash-stat" id="julian-inactive-days">0</div>
+              <div class="dash-detail">inactive days</div>
+              <div class="dash-pct" id="julian-active-pct">0% active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Lauren</div>
+              <div class="dash-stat" id="lauren-active-days">0</div>
+              <div class="dash-detail">active days</div>
+              <div class="dash-stat" id="lauren-inactive-days">0</div>
+              <div class="dash-detail">inactive days</div>
+              <div class="dash-pct" id="lauren-active-pct">0% active</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="log" class="tab-content">
           <div class="section-title">Recent activities</div>
           <div id="activity-log">
             <div class="empty-state">No entries yet</div>
@@ -586,22 +707,54 @@
         </div>
 
         <div id="stats" class="tab-content">
-          <div class="section-title">Activity breakdown</div>
-          <div class="chart-container">
-            <canvas id="activityChart"></canvas>
+          <div class="section-title">Progress by activity</div>
+          <div class="progress-chart-section">
+            <div class="progress-chart-label">Julian's Progress</div>
+            <div class="stacked-bar-container">
+              <div class="stacked-bar" id="julian-stacked-bar"></div>
+            </div>
+            <div class="stacked-bar-scale">
+              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Total entries</div>
-            <div class="stat-value" id="total-entries">0</div>
+          <div class="progress-chart-section">
+            <div class="progress-chart-label">Lauren's Progress</div>
+            <div class="stacked-bar-container">
+              <div class="stacked-bar" id="lauren-stacked-bar"></div>
+            </div>
+            <div class="stacked-bar-scale">
+              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Active days</div>
-            <div class="stat-value" id="active-days">0</div>
+          <div class="stacked-legend" id="stacked-legend"></div>
+          <div class="kids-grid" style="margin-top: 1rem;">
+            <div class="stat-card">
+              <div class="stat-label">Julian's Total</div>
+              <div class="stat-value" id="stats-julian-total">0</div>
+              <div class="miles-label">Miles</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Lauren's Total</div>
+              <div class="stat-value" id="stats-lauren-total">0</div>
+              <div class="miles-label">Miles</div>
+            </div>
           </div>
         </div>
 
         <div id="sync" class="tab-content">
-          <div class="section-title">Data sync</div>
+          <div class="section-title">Settings</div>
+          <div class="form-row full" style="margin-bottom: 0.5rem;">
+            <div class="input-wrapper">
+              <label for="summer-start-date">Summer Start Date</label>
+              <div class="miles-input-group">
+                <input type="date" id="summer-start-date" placeholder="Not set">
+                <button class="primary" onclick="saveSummerStart()" style="width: auto; padding: 0.75rem 1rem; font-size: 14px;">Save</button>
+              </div>
+            </div>
+          </div>
+          <div class="dash-since" id="summer-start-display" style="margin-bottom: 1.25rem;"></div>
+
+          <div class="section-title" style="margin-top: 0.5rem;">Data sync</div>
           <div class="info-text">
             Your data is automatically saved to this device. Export to any folder or drive for backup or import from a saved file.
           </div>
@@ -621,11 +774,8 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-
   <script>
     let data = { entries: [] };
-    let chart = null;
     let editingIndex = -1;
 
     function getLocalDateString(d) {
@@ -639,6 +789,7 @@
       const saved = localStorage.getItem('milesTrackerData');
       if (saved) {
         data = JSON.parse(saved);
+        if (!data.config) data.config = {};
       } else {
         data.entries = [
           {date: '2025-06-15', julian: 2, lauren: 2, activity: 'Walk'},
@@ -687,17 +838,50 @@
           {date: '2025-09-06', julian: 2, lauren: 3, activity: 'Walk'},
           {date: '2025-09-07', julian: 1, lauren: 0, activity: 'Walk'}
         ];
+        data.config = {};
         saveData();
       }
+
+      if (data.config.summerStartDate) {
+        document.getElementById('summer-start-date').value = data.config.summerStartDate;
+      }
+      updateSummerStartDisplay();
 
       const today = getLocalDateString(new Date());
       document.getElementById('entry-date').value = today;
       updateDisplay();
     }
 
+    function formatSinceDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return (d.getMonth() + 1) + '-' + d.getDate() + '-' + String(d.getFullYear()).slice(2);
+    }
+
+    function updateSummerStartDisplay() {
+      const display = document.getElementById('summer-start-display');
+      if (data.config.summerStartDate) {
+        display.textContent = 'Tracking since ' + formatSinceDate(data.config.summerStartDate);
+      } else {
+        display.textContent = 'No start date set';
+      }
+    }
+
+    function saveSummerStart() {
+      const val = document.getElementById('summer-start-date').value;
+      if (!val) {
+        alert('Please select a date');
+        return;
+      }
+      if (!data.config) data.config = {};
+      data.config.summerStartDate = val;
+      saveData();
+      updateSummerStartDisplay();
+      updateDisplay();
+    }
+
     function updateDisplay() {
-      const julianTotal = Math.round(data.entries.reduce((sum, e) => sum + e.julian, 0) * 10) / 10;
-      const laurenTotal = Math.round(data.entries.reduce((sum, e) => sum + e.lauren, 0) * 10) / 10;
+      const julianTotal = Math.round(data.entries.reduce((sum, e) => sum + (Number(e.julian) || 0), 0) * 10) / 10;
+      const laurenTotal = Math.round(data.entries.reduce((sum, e) => sum + (Number(e.lauren) || 0), 0) * 10) / 10;
 
       document.getElementById('julian-total').textContent = julianTotal;
       document.getElementById('lauren-total').textContent = laurenTotal;
@@ -728,56 +912,118 @@
       updateLog();
     }
 
+    function updateDashboard() {
+      const startDate = data.config && data.config.summerStartDate;
+      const noConfig = document.getElementById('dashboard-no-config');
+      const cards = document.getElementById('dashboard-cards');
+      const trackingSince = document.getElementById('dashboard-tracking-since');
+
+      if (!startDate) {
+        noConfig.style.display = 'block';
+        cards.style.display = 'none';
+        trackingSince.textContent = '';
+        return;
+      }
+
+      noConfig.style.display = 'none';
+      cards.style.display = '';
+      trackingSince.textContent = 'Tracking since ' + formatSinceDate(startDate);
+
+      const todayStr = getLocalDateString(new Date());
+      const start = new Date(startDate + 'T00:00:00');
+      const end = new Date(todayStr + 'T00:00:00');
+      const totalDays = Math.floor((end - start) / 86400000) + 1;
+
+      function calcDays(kid) {
+        const kidEntries = data.entries.filter(e => (Number(e[kid]) || 0) > 0 && e.date >= startDate);
+        const uniqueDates = new Set(kidEntries.map(e => e.date));
+        const activeDays = uniqueDates.size;
+        const inactiveDays = totalDays - activeDays;
+        const pct = totalDays > 0 ? Math.round((activeDays / totalDays) * 100) : 0;
+        return { active: activeDays, inactive: inactiveDays, pct };
+      }
+
+      const julian = calcDays('julian');
+      const lauren = calcDays('lauren');
+
+      document.getElementById('julian-active-days').textContent = julian.active;
+      document.getElementById('julian-inactive-days').textContent = julian.inactive;
+      document.getElementById('julian-active-pct').textContent = julian.pct + '% active';
+      document.getElementById('lauren-active-days').textContent = lauren.active;
+      document.getElementById('lauren-inactive-days').textContent = lauren.inactive;
+      document.getElementById('lauren-active-pct').textContent = lauren.pct + '% active';
+    }
+
     function updateStats() {
-      document.getElementById('total-entries').textContent = data.entries.length;
-      const uniqueDates = new Set(data.entries.map(e => e.date));
-      document.getElementById('active-days').textContent = uniqueDates.size;
+      updateDashboard();
 
-      const activityTotals = {};
-      data.entries.forEach(e => {
-        if (!activityTotals[e.activity]) activityTotals[e.activity] = 0;
-        activityTotals[e.activity] += e.julian + e.lauren;
-      });
+      const activityColors = {
+        'Walk': '#4a9eff',
+        'Run': '#ff9800',
+        'Row': '#9c27b0',
+        'Bike': '#4caf50'
+      };
 
-      const labels = Object.keys(activityTotals).length > 0 ? Object.keys(activityTotals) : ['No data'];
-      const values = Object.keys(activityTotals).length > 0 ? Object.values(activityTotals).map(v => Math.round(v * 10) / 10) : [0];
-
-      if (chart) chart.destroy();
-
-      const ctx = document.getElementById('activityChart');
-      if (ctx) {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const colors = ['#4a9eff', '#4caf50', '#ff9800', '#9c27b0'];
-        const textColor = isDark ? '#b0b0b0' : '#666666';
-        const gridColor = isDark ? '#404040' : '#e0e0e0';
-
-        chart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Total miles',
-              data: values,
-              backgroundColor: colors.slice(0, values.length),
-              borderRadius: 6,
-              borderSkipped: false
-            }]
-          },
-          options: {
-            indexAxis: 'x',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: { bodyColor: textColor, backgroundColor: isDark ? '#2d2d2d' : '#ffffff', borderColor: gridColor, borderWidth: 1 }
-            },
-            scales: {
-              x: { ticks: { color: textColor }, grid: { color: gridColor } },
-              y: { beginAtZero: true, max: 100, ticks: { color: textColor }, grid: { color: gridColor } }
-            }
+      function getMilesByActivity(kid) {
+        const totals = {};
+        data.entries.forEach(e => {
+          const miles = Number(e[kid]) || 0;
+          if (miles > 0) {
+            if (!totals[e.activity]) totals[e.activity] = 0;
+            totals[e.activity] += miles;
           }
         });
+        return totals;
       }
+
+      function sumTotals(totals) {
+        return Math.round(Object.values(totals).reduce((s, v) => s + v, 0) * 10) / 10;
+      }
+
+      function renderBar(containerId, totals) {
+        const bar = document.getElementById(containerId);
+        bar.innerHTML = '';
+        const totalMiles = sumTotals(totals);
+        const barPct = Math.min((totalMiles / 100) * 100, 100);
+        bar.style.width = barPct + '%';
+
+        if (totalMiles === 0) return;
+
+        const activities = Object.keys(totals).filter(a => totals[a] > 0);
+        activities.forEach(activity => {
+          const miles = Math.round(totals[activity] * 10) / 10;
+          const segPct = (miles / totalMiles) * 100;
+          const seg = document.createElement('div');
+          seg.className = 'stacked-segment';
+          seg.style.width = segPct + '%';
+          seg.style.backgroundColor = activityColors[activity] || '#888';
+          if (segPct > 15) {
+            const label = document.createElement('div');
+            label.className = 'stacked-segment-label';
+            label.textContent = miles;
+            seg.appendChild(label);
+          }
+          bar.appendChild(seg);
+        });
+      }
+
+      const julianTotals = getMilesByActivity('julian');
+      const laurenTotals = getMilesByActivity('lauren');
+
+      renderBar('julian-stacked-bar', julianTotals);
+      renderBar('lauren-stacked-bar', laurenTotals);
+
+      document.getElementById('stats-julian-total').textContent = sumTotals(julianTotals);
+      document.getElementById('stats-lauren-total').textContent = sumTotals(laurenTotals);
+
+      const usedActivities = new Set([
+        ...Object.keys(julianTotals).filter(a => julianTotals[a] > 0),
+        ...Object.keys(laurenTotals).filter(a => laurenTotals[a] > 0)
+      ]);
+      const legendDiv = document.getElementById('stacked-legend');
+      legendDiv.innerHTML = [...usedActivities].map(activity =>
+        `<div class="legend-item"><div class="legend-swatch" style="background:${activityColors[activity] || '#888'}"></div>${activity}</div>`
+      ).join('');
     }
 
     function updateLog() {
@@ -934,8 +1180,14 @@
           try {
             const imported = JSON.parse(evt.target.result);
             if (imported.entries && Array.isArray(imported.entries)) {
+              const existingConfig = data.config || {};
               data = imported;
+              if (!data.config) data.config = existingConfig;
               saveData();
+              updateSummerStartDisplay();
+              if (data.config.summerStartDate) {
+                document.getElementById('summer-start-date').value = data.config.summerStartDate;
+              }
               updateDisplay();
               alert('✓ Data imported!');
             } else {
@@ -953,7 +1205,7 @@
     function clearAllData() {
       if (confirm('⚠️ Delete ALL data? Export first for backup!')) {
         if (confirm('Last chance! This cannot be undone.')) {
-          data = { entries: [] };
+          data = { entries: [], config: data.config || {} };
           saveData();
           updateDisplay();
           alert('✓ All data cleared');
