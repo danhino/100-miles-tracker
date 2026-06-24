@@ -1,6 +1,6 @@
 # 100 Miles of Summer
 
-A mobile-friendly single-page web app for tracking the kid's summer fitness goal: 100 miles each.
+A mobile-friendly single-page web app for tracking the kid's fitness goal: 100 miles each.
 
 ## Screenshots
 
