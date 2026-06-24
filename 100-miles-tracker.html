@@ -382,16 +382,23 @@
       margin-top: 0.25rem;
     }
 
+    .log-miles-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 2.5rem;
+    }
+
     .log-miles {
-      text-align: right;
+      text-align: center;
       font-weight: 600;
       color: var(--text-primary);
       font-size: 15px;
       font-family: 'Courier New', monospace;
-      min-width: 2.5rem;
     }
 
     .log-miles-label {
+      text-align: center;
       font-size: 11px;
       color: var(--text-tertiary);
     }
@@ -791,11 +798,11 @@
               <div class="log-date">${dateStr}</div>
               <div class="log-activity">${e.activity}</div>
             </div>
-            <div>
+            <div class="log-miles-col">
               <div class="log-miles-label">J</div>
               <div class="log-miles">${e.julian}</div>
             </div>
-            <div>
+            <div class="log-miles-col">
               <div class="log-miles-label">L</div>
               <div class="log-miles">${e.lauren}</div>
             </div>
