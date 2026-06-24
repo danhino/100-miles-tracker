@@ -60,15 +60,19 @@
     }
 
     body {
-      padding: max(0.75rem, env(safe-area-inset-top)) 
-            max(0.75rem, env(safe-area-inset-right)) 
-            max(0.75rem, env(safe-area-inset-bottom)) 
+      padding: max(0.75rem, env(safe-area-inset-top))
+            max(0.75rem, env(safe-area-inset-right))
+            max(0.75rem, env(safe-area-inset-bottom))
             max(0.75rem, env(safe-area-inset-left));
+      height: 100dvh;
+      overflow: hidden;
     }
 
     .container {
       max-width: 100%;
       margin: 0 auto;
+      height: 100dvh;
+      overflow-y: auto;
     }
 
     .header {
@@ -383,6 +387,8 @@
       font-weight: 600;
       color: var(--text-primary);
       font-size: 15px;
+      font-family: 'Courier New', monospace;
+      min-width: 2.5rem;
     }
 
     .log-miles-label {
